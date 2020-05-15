@@ -33,26 +33,9 @@
                     s.display.blit(s.icons[tmp2], s.getScreenPosition((y, x)))
                     s.display.blit(s.icons[tmp], s.getScreenPosition((y, x)))
 
-    def findGridSizes(self):
-        s.baseY = int(WINDOW_HEIGH - 0.9 * WINDOW_HEIGH)
-        s.baseX = int(WINDOW_WIDTH - 0.9 * WINDOW_WIDTH)
-        s.gridIncY = int((WINDOW_HEIGH - 2 * s.baseY) // (s.heigh))
-        s.gridIncX = int((WINDOW_WIDTH - 2 * s.baseX) // (s.width))
 
     def getScreenPosition(self, pos):
-        y = s.baseY + pos[0] * s.gridIncY
-        x = s.baseX + pos[1] * s.gridIncX
+        y = s.base_Y + pos[0] * s.grid_y_inc
+        x = s.base_X + pos[1] * s.grid_x_inc
         #INVERTED FOR PYGAME !!!!
         return (x, y)
-
-            def initIcons(self):
-                s.icons["pacmanIcon"] = pygame.transform.scale(pygame.image.load("./rsc/icons/pacman.png"), (s.gridIncX, s.gridIncY))
-                s.icons["ghostIcon"] = pygame.transform.scale(pygame.image.load("./rsc/icons/ghostV2.png"), (s.gridIncX, s.gridIncY))
-                s.icons["wallIcon"] = pygame.transform.scale(pygame.image.load("./rsc/icons/wall.png"), (s.gridIncX, s.gridIncY))
-                s.icons["bonusIcon"] = pygame.transform.scale(pygame.image.load("./rsc/icons/bonus.png"), (s.gridIncX, s.gridIncY))
-                for i in range(0, 10):
-                    tmp = "Icon" + str(i)
-                    s.icons[tmp] = pygame.transform.scale(pygame.image.load("./rsc/icons/" + tmp + ".png"), (s.gridIncX, s.gridIncY))
-                for i in range(0, 5):
-                    tmp = "color" + str(i)
-                    s.icons[tmp] = pygame.transform.scale(pygame.image.load("./rsc/icons/" + tmp + ".png"), (s.gridIncX, s.gridIncY))

@@ -1,8 +1,89 @@
-class pyGameHandler(object):
-    def __init__(s, window_dimensions):
-        pygame.init()
-        s.display = pygame.display.set_mode(*window_dimensions)
-        s.display.fill(COLOR_WHITE)
+import sys
+import time
 
-    def set_title(s, title):
+import pygame
+from pygame.locals import *
+
+from config import *
+
+
+class pyGameHandler(object):
+    def __init__(s, window_dimensions, map, max_fps):
+        s.map = map
+        s.icons = {}
+        # FPS handling
+        s.last_frame_time = time.time()
+        FPS = MAX_FPS
+        s.min_frame_time = 1 / FPS
+
+        pygame.init()
+        s.width, s.height = window_dimensions[0], window_dimensions[1]
+        s.display = pygame.display.set_mode(window_dimensions)
+        s.init_from_map()
+
+    def update_display(s, fg_color, bg_color):
+        # Wait if needed to respect fps capping
+        wait_time = s.min_frame_time - (s.last_frame_time - time.time())
+        if wait_time > 0:
+            time.sleep(wait_time)
+        # Update window size if needed
+        w, h = pygame.display.get_surface().get_size()
+        if w != s.width or h != s.height:
+            s.width = w
+            s.height = h
+            init_from_map()
+        # Update display
+        s.display.fill(bg_color)
+        s.draw_grid(fg_color)
+        pygame.display.update()
+        s.last_frame_time = time.time()
+        # Handle inputs for next turn
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                return s.handle_input()
+
+    def handle_input(s):
+        keys = pygame.key.get_pressed()
+        if keys[K_UP]:
+            return 0
+        elif keys[K_RIGHT]:
+            return 1
+        elif keys[K_DOWN]:
+            return 2
+        elif keys[K_LEFT]:
+            return 3
+
+    def draw_grid(s, fg_color):
+        """Draw grid lines"""
+        for y in range(s.base_y, s.height - s.base_y + 1, s.grid_y_inc):
+            pygame.draw.line(s.display, fg_color, (s.base_y, y), ((s.width - s.base_x), y), 2)
+        for x in range(s.base_x, s.width - s.base_x + 1, s.grid_x_inc):
+            pygame.draw.line(s.display, fg_color, (x, s.base_x), (x, (s.height - s.base_y)), 2)
+
+    def init_from_map(s):
+        """Requires the s.map ref to be up-to-date with Core's one!"""
+        s.base_y = int(s.height - 0.9 * s.height)
+        s.base_x = int(s.width - 0.9 * s.width)
+        s.grid_y_inc = int((s.height - 2 * s.base_y) // (s.map.height))
+        s.grid_x_inc = int((s.width - 2 * s.base_x) // (s.map.width))
+        s.init_icons()
+
+    def init_icons(s):
+        """Load icons to the correct square size"""
+        s.icons["Player"] = pygame.transform.scale(pygame.image.load("./rsc/icons/pacman.png"), (s.grid_x_inc, s.grid_y_inc))
+        s.icons["Enemy"] = pygame.transform.scale(pygame.image.load("./rsc/icons/ghostV2.png"), (s.grid_x_inc, s.grid_y_inc))
+        s.icons["Wall"] = pygame.transform.scale(pygame.image.load("./rsc/icons/wall.png"), (s.grid_x_inc, s.grid_y_inc))
+        s.icons["Bonus"] = pygame.transform.scale(pygame.image.load("./rsc/icons/bonus.png"), (s.grid_x_inc, s.grid_y_inc))
+        # Create color icons
+        for i in range(0, 10):
+            tmp = "Icon" + str(i)
+            s.icons[tmp] = pygame.transform.scale(pygame.image.load("./rsc/icons/" + tmp + ".png"), (s.grid_x_inc, s.grid_y_inc))
+        for i in range(0, 5):
+            tmp = "color" + str(i)
+            s.icons[tmp] = pygame.transform.scale(pygame.image.load("./rsc/icons/" + tmp + ".png"), (s.grid_x_inc, s.grid_y_inc))
+
+    def set_window_title(s, title):
         pygame.display.set_caption(title)

@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-"""defines for PacMan Game"""
-
-WINDOW_WIDTH = 600
-WINDOW_HEIGH = 600
+WINDOW_SIZES = (600, 600)
+MAX_FPS = 60
 
 #FLAT UI THEME
 COLOR_DARK_BLUE = (44, 62, 80)

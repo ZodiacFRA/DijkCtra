@@ -6,7 +6,6 @@ from misc import MapError
 class Map(object):
     """Contains all the map object data, and handles loading etc
     each case contains a bool for isFree (True = empty case) """
-
     def __init__(s):
         s.file_path = None
         s.width = -1
