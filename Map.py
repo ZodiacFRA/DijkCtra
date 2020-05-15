@@ -1,13 +1,14 @@
+import copy
 import glob
 import random
 
 from misc import MapError
-from utils import Pos
+from utils import Pos, WALL, PLAYER, ENEMY, EMPTY
 
 
 class Map(object):
     """Contains all the map object data, and handles loading etc
-    each case contains a bool for isFree (True = empty case) """
+    each square contains an int value (used with defines here)"""
     def __init__(s):
         s.file_path = None
         s.width = -1
@@ -17,24 +18,25 @@ class Map(object):
         s.enemies_pos = []
 
     def move_player(s, inputs):
-        old_player_pos = s.player_pos
+        old_player_pos = copy.copy(s.player_pos)
         if inputs == 0:
             y = s.player_pos.y - 1
-            if y > 0 and s.get_square(y, s.player_pos.x):
+            if y > 0 and s.get_square(y, s.player_pos.x) != WALL:
                 s.player_pos.y = y
         elif inputs == 1:
             x = s.player_pos.x + 1
-            if x < s.width and s.get_square(s.player_pos.y, x):
+            if x < s.width and s.get_square(s.player_pos.y, x) != WALL:
                 s.player_pos.x = x
         elif inputs == 2:
             y = s.player_pos.y + 1
-            if y < s.height and s.get_square(y, s.player_pos.x):
+            if y < s.height and s.get_square(y, s.player_pos.x) != WALL:
                 s.player_pos.y = y
         elif inputs == 3:
             x = s.player_pos.x - 1
-            if x >= 0 and s.get_square(s.player_pos.y, x):
+            if x >= 0 and s.get_square(s.player_pos.y, x) != WALL:
                 s.player_pos.x = x
-        s.set_square(True, old_player_pos)
+        s.set_square(EMPTY, old_player_pos)
+        s.set_square(PLAYER, s.player_pos)
 
 
     def get_random_map(s, maps_folder_path):
@@ -55,21 +57,23 @@ class Map(object):
         s.height = len(map_raw)
         if s.width < 2 or s.height < 2:
             raise MapError(f"{s.file_path}: Map too small ({s.width} x {s.height})")
-        s.map = [True for x in range(s.width * s.height)]
+        s.map = [EMPTY for x in range(s.width * s.height)]
 
         for y_idx, l in enumerate(map_raw):
             if len(l) != s.width:
                 raise MapError(f"{s.file_path}: Invalid length {len(l)} for line {y_idx}")
             for x_idx, c in enumerate(l):
-                if c == '0':
-                    s.set_square(False, y_idx, x_idx)
-                elif c == 'E':
-                    s.enemies_pos.append(Pos(y_idx, x_idx))
-                elif c == 'P':
+                if c == 'X':  # Wall
+                    s.set_square(WALL, y_idx, x_idx)
+                elif c == 'P':  # Player
                     if s.player_pos:
                         print("Multiple player locations detected, the last one found will be used")
                     s.player_pos = Pos(y_idx, x_idx)
-                elif c != "1":
+                    s.set_square(PLAYER, y_idx, x_idx)
+                elif c == 'E':  # Enemy
+                    s.enemies_pos.append(Pos(y_idx, x_idx))
+                    s.set_square(ENEMY, y_idx, x_idx)
+                elif c != "-":  # Empty
                     raise MapError(f"{s.file_path}: Invalid character ({c}) on line {y_idx}")
         if not s.enemies_pos or not s.player_pos:
             raise MapError(f"{s.file_path}: Map is missing a player and / or an enemy")
@@ -92,3 +96,11 @@ class Map(object):
 
     def get_pos(s, idx):
         return Pos(idx // s.width, idx % s.width)
+
+    def terminal_print_map(s):
+        idx = 0
+        for y in range(s.height):
+            for x in range(s.width):
+                print(s.map[idx], end='')
+                idx += 1
+            print()

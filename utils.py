@@ -1,3 +1,9 @@
+WALL = -1
+EMPTY = 0
+PLAYER = 1
+ENEMY = 2
+
+
 class Pos(object):
     def __init__(s, y, x):
         s.y = y
