@@ -5,7 +5,6 @@ import pygame
 from pygame.locals import *
 
 from config import *
-from utils import Pos
 
 
 class pyGameHandler(object):
@@ -23,11 +22,7 @@ class pyGameHandler(object):
         s.display = pygame.display.set_mode(window_dimensions)
         s.init_from_map()
 
-    def update_display(s, fg_color, bg_color):
-        # Wait if needed to respect fps capping
-        wait_time = s.min_frame_time - (s.last_frame_time - time.time())
-        if wait_time > 0:
-            time.sleep(wait_time)
+    def prepare_display(s, bg_color):
         # Update window size if needed
         w, h = pygame.display.get_surface().get_size()
         if w != s.width or h != s.height:
@@ -36,9 +31,15 @@ class pyGameHandler(object):
             init_from_map()
         # Update display
         s.display.fill(bg_color)
-        s.draw_grid(fg_color)
+
+    def update_display(s):
         pygame.display.update()
+        # Wait if needed to respect fps capping
+        wait_time = s.min_frame_time - (s.last_frame_time - time.time())
+        if wait_time > 0:
+            time.sleep(wait_time)
         s.last_frame_time = time.time()
+
         # Handle inputs for next turn
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -59,8 +60,8 @@ class pyGameHandler(object):
             return 3
 
     # Drawing functions
-    def draw(s, pos, type):
-        s.display.blit(s.icons[type], s.get_pixel_pos(pos))
+    def draw(s, icon_name, pos):
+        s.display.blit(s.icons[icon_name], s.get_pixel_pos(pos))
 
     def draw_grid(s, fg_color):
         for y in range(s.base_y, s.height - s.base_y + 1, s.grid_y_inc):

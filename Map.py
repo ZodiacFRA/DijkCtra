@@ -27,11 +27,11 @@ class Map(object):
             if x < s.width and s.map[s.player_pos.y][x]:
                 s.player_pos.x = x
         elif inputs == 2:
-            y = pY + 1
+            y = s.player_pos.y + 1
             if y < s.height and s.map[y][s.player_pos.x]:
                 s.player_pos.y = y
         elif inputs == 3:
-            x = pX - 1
+            x = s.player_pos.x - 1
             if x >= 0 and s.map[s.player_pos.y][x]:
                 s.player_pos.x = x
         s.map[old_player_pos.y][old_player_pos.x] = True
@@ -65,12 +65,10 @@ class Map(object):
                     s.map[y_idx][x_idx] = False
                 elif c == 'E':
                     s.enemies_pos.append(Pos(y_idx, x_idx))
-                    s.map[y_idx][x_idx] = False
                 elif c == 'P':
                     if s.player_pos:
                         print("Multiple player locations detected, the last one found will be used")
                     s.player_pos = Pos(y_idx, x_idx)
-                    s.map[y_idx][x_idx] = False
                 elif c != "1":
                     raise MapError(f"{s.file_path}: Invalid character ({c}) on line {y_idx}")
         if not s.enemies_pos or s.player_pos == (-1, -1):
