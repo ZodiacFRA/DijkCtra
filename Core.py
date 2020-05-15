@@ -15,11 +15,16 @@ class Core(object):
         while 1:
             s.gI.prepare_display(COLOR_WHITE)
             s.gI.draw_grid(COLOR_BLACK)
-
             for y_idx, y in enumerate(s.map.map):
                 for x_idx, _ in enumerate(y):
                     if not s.map.map[y_idx][x_idx]:
                         s.gI.draw("Wall", Pos(y_idx, x_idx))
             s.gI.draw("Player", s.map.player_pos)
+            for enemy_pos in s.map.enemies_pos:
+                s.gI.draw("Enemy", enemy_pos)
             inputs = s.gI.update_display()
+
             s.map.move_player(inputs)
+            if s.map.player_pos in s.map.enemies_pos:
+                print("Lost!")
+                exit(SUCCESS)

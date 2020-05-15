@@ -71,5 +71,5 @@ class Map(object):
                     s.player_pos = Pos(y_idx, x_idx)
                 elif c != "1":
                     raise MapError(f"{s.file_path}: Invalid character ({c}) on line {y_idx}")
-        if not s.enemies_pos or s.player_pos == (-1, -1):
+        if not s.enemies_pos or not s.player_pos:
             raise MapError(f"{s.file_path}: Map is missing a player and / or an enemy")
