@@ -5,11 +5,13 @@ import pygame
 from pygame.locals import *
 
 from config import *
+from utils import Pos
 
 
 class pyGameHandler(object):
-    def __init__(s, window_dimensions, map, max_fps):
-        s.map = map
+    def __init__(s, window_dimensions, grid_width, grid_height, max_fps):
+        s.grid_width = grid_width
+        s.grid_height = grid_height
         s.icons = {}
         # FPS handling
         s.last_frame_time = time.time()
@@ -56,19 +58,23 @@ class pyGameHandler(object):
         elif keys[K_LEFT]:
             return 3
 
+    # Drawing functions
+    def draw(s, pos, type):
+        s.display.blit(s.icons[type], s.get_pixel_pos(pos))
+
     def draw_grid(s, fg_color):
-        """Draw grid lines"""
         for y in range(s.base_y, s.height - s.base_y + 1, s.grid_y_inc):
             pygame.draw.line(s.display, fg_color, (s.base_y, y), ((s.width - s.base_x), y), 2)
         for x in range(s.base_x, s.width - s.base_x + 1, s.grid_x_inc):
             pygame.draw.line(s.display, fg_color, (x, s.base_x), (x, (s.height - s.base_y)), 2)
 
+    # Init functions
     def init_from_map(s):
         """Requires the s.map ref to be up-to-date with Core's one!"""
         s.base_y = int(s.height - 0.9 * s.height)
         s.base_x = int(s.width - 0.9 * s.width)
-        s.grid_y_inc = int((s.height - 2 * s.base_y) // (s.map.height))
-        s.grid_x_inc = int((s.width - 2 * s.base_x) // (s.map.width))
+        s.grid_y_inc = int((s.height - 2 * s.base_y) // (s.grid_height))
+        s.grid_x_inc = int((s.width - 2 * s.base_x) // (s.grid_width))
         s.init_icons()
 
     def init_icons(s):
@@ -84,6 +90,13 @@ class pyGameHandler(object):
         for i in range(0, 5):
             tmp = "color" + str(i)
             s.icons[tmp] = pygame.transform.scale(pygame.image.load("./rsc/icons/" + tmp + ".png"), (s.grid_x_inc, s.grid_y_inc))
+
+    # Utils functions
+    def get_pixel_pos(s, pos):
+        y = s.base_y + pos.y * s.grid_y_inc
+        x = s.base_x + pos.x * s.grid_x_inc
+        #INVERTED FOR PYGAME !!!!
+        return (x, y)
 
     def set_window_title(s, title):
         pygame.display.set_caption(title)

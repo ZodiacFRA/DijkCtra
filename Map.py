@@ -1,6 +1,8 @@
 import glob
 import random
+
 from misc import MapError
+from utils import Pos
 
 
 class Map(object):
@@ -11,8 +13,29 @@ class Map(object):
         s.width = -1
         s.height = -1
         s.map = None
-        s.player_pos = (-1, -1)
+        s.player_pos = None
         s.enemies_pos = []
+
+    def move_player(s, inputs):
+        old_player_pos = s.player_pos
+        if inputs == 0:
+            y = s.player_pos.y - 1
+            if y > 0 and s.map[y][s.player_pos.x]:
+                s.player_pos.y = y
+        elif inputs == 1:
+            x = s.player_pos.x + 1
+            if x < s.width and s.map[s.player_pos.y][x]:
+                s.player_pos.x = x
+        elif inputs == 2:
+            y = pY + 1
+            if y < s.height and s.map[y][s.player_pos.x]:
+                s.player_pos.y = y
+        elif inputs == 3:
+            x = pX - 1
+            if x >= 0 and s.map[s.player_pos.y][x]:
+                s.player_pos.x = x
+        s.map[old_player_pos.y][old_player_pos.x] = True
+
 
     def get_random_map(s, maps_folder_path):
         """Get a random map file data from those available in the folder,
@@ -41,11 +64,13 @@ class Map(object):
                 if c == '0':
                     s.map[y_idx][x_idx] = False
                 elif c == 'E':
-                    s.enemies_pos.append((y_idx, x_idx))
+                    s.enemies_pos.append(Pos(y_idx, x_idx))
+                    s.map[y_idx][x_idx] = False
                 elif c == 'P':
-                    if s.player_pos != (-1, -1):
+                    if s.player_pos:
                         print("Multiple player locations detected, the last one found will be used")
-                    s.player_pos = (y_idx, x_idx)
+                    s.player_pos = Pos(y_idx, x_idx)
+                    s.map[y_idx][x_idx] = False
                 elif c != "1":
                     raise MapError(f"{s.file_path}: Invalid character ({c}) on line {y_idx}")
         if not s.enemies_pos or s.player_pos == (-1, -1):

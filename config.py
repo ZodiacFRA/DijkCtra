@@ -23,5 +23,6 @@ TILE_SIZE = 30
 TILE_GAP = 5
 
 MAPS_PATH = "./rsc/maps/"
+
 SUCCESS = 0
-ERROR = -1
+FAILURE = -1
