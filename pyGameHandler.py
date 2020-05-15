@@ -71,7 +71,6 @@ class pyGameHandler(object):
 
     # Init functions
     def init_from_map(s):
-        """Requires the s.map ref to be up-to-date with Core's one!"""
         s.base_y = int(s.height - 0.9 * s.height)
         s.base_x = int(s.width - 0.9 * s.width)
         s.grid_y_inc = int((s.height - 2 * s.base_y) // (s.grid_height))

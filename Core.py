@@ -15,10 +15,9 @@ class Core(object):
         while 1:
             s.gI.prepare_display(COLOR_WHITE)
             s.gI.draw_grid(COLOR_BLACK)
-            for y_idx, y in enumerate(s.map.map):
-                for x_idx, _ in enumerate(y):
-                    if not s.map.map[y_idx][x_idx]:
-                        s.gI.draw("Wall", Pos(y_idx, x_idx))
+            for idx, square in enumerate(s.map.map):
+                    if not square:
+                        s.gI.draw("Wall", s.map.get_pos(idx))
             s.gI.draw("Player", s.map.player_pos)
             for enemy_pos in s.map.enemies_pos:
                 s.gI.draw("Enemy", enemy_pos)

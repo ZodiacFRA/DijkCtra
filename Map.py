@@ -20,21 +20,21 @@ class Map(object):
         old_player_pos = s.player_pos
         if inputs == 0:
             y = s.player_pos.y - 1
-            if y > 0 and s.map[y][s.player_pos.x]:
+            if y > 0 and s.get_square(y, s.player_pos.x):
                 s.player_pos.y = y
         elif inputs == 1:
             x = s.player_pos.x + 1
-            if x < s.width and s.map[s.player_pos.y][x]:
+            if x < s.width and s.get_square(s.player_pos.y, x):
                 s.player_pos.x = x
         elif inputs == 2:
             y = s.player_pos.y + 1
-            if y < s.height and s.map[y][s.player_pos.x]:
+            if y < s.height and s.get_square(y, s.player_pos.x):
                 s.player_pos.y = y
         elif inputs == 3:
             x = s.player_pos.x - 1
-            if x >= 0 and s.map[s.player_pos.y][x]:
+            if x >= 0 and s.get_square(s.player_pos.y, x):
                 s.player_pos.x = x
-        s.map[old_player_pos.y][old_player_pos.x] = True
+        s.set_square(True, old_player_pos)
 
 
     def get_random_map(s, maps_folder_path):
@@ -55,14 +55,14 @@ class Map(object):
         s.height = len(map_raw)
         if s.width < 2 or s.height < 2:
             raise MapError(f"{s.file_path}: Map too small ({s.width} x {s.height})")
-        s.map = [[True for x in range(s.width)] for y in range(s.height)]
+        s.map = [True for x in range(s.width * s.height)]
 
         for y_idx, l in enumerate(map_raw):
             if len(l) != s.width:
                 raise MapError(f"{s.file_path}: Invalid length {len(l)} for line {y_idx}")
             for x_idx, c in enumerate(l):
                 if c == '0':
-                    s.map[y_idx][x_idx] = False
+                    s.set_square(False, y_idx, x_idx)
                 elif c == 'E':
                     s.enemies_pos.append(Pos(y_idx, x_idx))
                 elif c == 'P':
@@ -73,3 +73,22 @@ class Map(object):
                     raise MapError(f"{s.file_path}: Invalid character ({c}) on line {y_idx}")
         if not s.enemies_pos or not s.player_pos:
             raise MapError(f"{s.file_path}: Map is missing a player and / or an enemy")
+
+    def get_square(s, pos_or_y, x=None):
+        if x != None:
+            return s.map[x + (pos_or_y * s.width)]
+        return s.map[pos_or_y.x + (pos_or_y.y * s.width)]
+
+    def set_square(s, value, pos_or_y, x=None):
+        if x != None:  # x and y provided
+            s.map[x + (pos_or_y * s.width)] = value
+        else:  # Pos object provided
+            s.map[pos_or_y.x + (pos_or_y.y * s.width)] = value
+
+    def get_idx(s, pos_or_y, x=None):
+        if x != None:
+            return x + (pos_or_y * s.width)
+        return pos_or_y.x + (pos_or_y.y * s.width)
+
+    def get_pos(s, idx):
+        return Pos(idx // s.width, idx % s.width)
